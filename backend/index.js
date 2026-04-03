@@ -19,7 +19,10 @@ app.use(express.json())
 app.use(cookieParser())
 app.use("/api/auth",authRouter)
 app.use("/api/user",userRouter)
-
+// test route
+app.get("/", (req, res) => {
+  res.json({ message: "Backend working 🚀" });
+});
 
 app.listen(port,()=>{
     connectDb()
