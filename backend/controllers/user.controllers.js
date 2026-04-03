@@ -47,10 +47,12 @@ export const askToAssistant=async (req,res)=>{
       const userName=user.name
       const assistantName=user.assistantName
       const result=await geminiResponse(command,assistantName,userName)
+      // const result = await geminiResponse(command,assistantName,userName)
+console.log("GEMINI RAW RESPONSE 👉", result)
 
       const jsonMatch=result.match(/{[\s\S]*}/)
       if(!jsonMatch){
-         return res.ststus(400).json({response:"sorry, i can't understand"})
+         return res.status(400).json({response:"sorry, i can't understand"})
       }
       const gemResult=JSON.parse(jsonMatch[0])
       console.log(gemResult)
