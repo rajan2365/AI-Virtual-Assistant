@@ -133,47 +133,6 @@
 
 // export default geminiResponse
 
-// import axios from "axios";
-
-// const geminiResponse = async (command, assistantName, userName) => {
-//   try {
-//     const apiUrl = process.env.GEMINI_API_URL;
-//     const apiKey = process.env.GEMINI_API_KEY;
-
-//     const prompt = `
-// You are a virtual assistant named ${assistantName} created by ${userName}.
-// You are a voice assistant.
-
-// Return ONLY JSON in this format:
-
-// {
-//  "type":"general | google-search | youtube-search | youtube-play | get-time | get-date | get-day | get-month | calculator-open | instagram-open | facebook-open | weather-show",
-//  "userInput":"clean user command",
-//  "response":"short voice reply"
-// }
-
-// User command: ${command}
-// `;
-
-//     const result = await axios.post(
-//       `${apiUrl}?key=${apiKey}`,
-//       {
-//         contents: [{ parts: [{ text: prompt }] }]
-//       }
-//     );
-
-//     const text = result.data.candidates[0].content.parts[0].text;
-//     console.log("GEMINI RAW RESPONSE 👉", text);
-
-//     return text;
-
-//   } catch (error) {
-//     console.log("GEMINI ERROR ❌", error.response?.data || error.message);
-//     return null;
-//   }
-// };
-
-// export default geminiResponse;
 import axios from "axios";
 
 const geminiResponse = async (command, assistantName, userName) => {
@@ -181,12 +140,11 @@ const geminiResponse = async (command, assistantName, userName) => {
     const apiUrl = process.env.GEMINI_API_URL;
     const apiKey = process.env.GEMINI_API_KEY;
 
-    // 🔥 Strong prompt (forces clean JSON)
     const prompt = `
 You are a virtual assistant named ${assistantName} created by ${userName}.
 You are a voice assistant.
 
-Return ONLY valid JSON in this format:
+Return ONLY JSON in this format:
 
 {
  "type":"general | google-search | youtube-search | youtube-play | get-time | get-date | get-day | get-month | calculator-open | instagram-open | facebook-open | weather-show",
@@ -194,63 +152,26 @@ Return ONLY valid JSON in this format:
  "response":"short voice reply"
 }
 
-STRICT RULES:
-- ONLY return JSON
-- NO explanation
-- NO extra text
-- NO markdown (no \`\`\`)
-- Always valid JSON
-
 User command: ${command}
 `;
 
-    // ✅ API call (fixed)
     const result = await axios.post(
       `${apiUrl}?key=${apiKey}`,
       {
-        contents: [
-          {
-            parts: [{ text: prompt }]
-          }
-        ]
-      },
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
+        contents: [{ parts: [{ text: prompt }] }]
       }
     );
 
-    let text = result?.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = result.data.candidates[0].content.parts[0].text;
+    console.log("GEMINI RAW RESPONSE 👉", text);
 
-    console.log("✅ GEMINI RAW RESPONSE 👉", text);
-
-    if (!text) {
-      console.log("❌ Empty response from Gemini");
-      return null;
-    }
-
-    // ✅ Clean response (remove markdown if Gemini adds it)
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-
-    // ✅ Parse JSON safely
-    let parsed;
-    try {
-      parsed = JSON.parse(text);
-    } catch (err) {
-      console.log("❌ JSON PARSE ERROR 👉", text);
-      return null;
-    }
-
-    return parsed;
+    return text;
 
   } catch (error) {
-    console.log(
-      "❌ GEMINI ERROR 👉",
-      error.response?.data || error.message
-    );
+    console.log("GEMINI ERROR ❌", error.response?.data || error.message);
     return null;
   }
 };
 
 export default geminiResponse;
+
